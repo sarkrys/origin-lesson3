@@ -1,20 +1,29 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <algorithm>
 
-struct Address {
+class Address {
+private:
     std::string city;
     std::string street;
     std::string houseNumber;
     std::string apartmentNumber;
+
+public:
+    Address() : city(""), street(""), houseNumber(""), apartmentNumber("") {}
+
+    Address(const std::string& city, const std::string& street, const std::string& houseNumber, const std::string& apartmentNumber)
+        : city(city), street(street), houseNumber(houseNumber), apartmentNumber(apartmentNumber) {
+    }
+
+
+    std::string getFormattedAddress() const {
+        return city + ", " + street + ", " + houseNumber + ", " + apartmentNumber;
+    }
 };
 
-bool comparator(const Address &a, const Address &b) {
-    return a.city < b.city;
-}
-
 int main() {
+    const int N = 10;
     std::ifstream inFile("in.txt");
     if (inFile.is_open()) {
         int N;
@@ -23,27 +32,36 @@ int main() {
 
         Address* addresses = new Address[N];
 
+
         for (int i = 0; i < N; ++i) {
-            std::getline(inFile, addresses[i].city);
-            std::getline(inFile, addresses[i].street);
-            std::getline(inFile, addresses[i].houseNumber);
-            std::getline(inFile, addresses[i].apartmentNumber);
+            std::string city, street, houseNumber, apartmentNumber;
+            std::getline(inFile, city);
+            std::getline(inFile, street);
+            std::getline(inFile, houseNumber);
+            std::getline(inFile, apartmentNumber);
+            addresses[i] = Address(city, street, houseNumber, apartmentNumber);
         }
 
         inFile.close();
 
-        std::sort(addresses, addresses + N, comparator);
+        std::ofstream outFile("out.txt");
+        if (outFile.is_open()) {
+            outFile << N << std::endl;
 
-        std::cout << N << std::endl;
+            for (int i = N - 1; i >= 0; --i) {
+                outFile << addresses[i].getFormattedAddress() << std::endl;
+            }
 
-        for (int i = 0; i < N; ++i) {
-            std::cout << addresses[i].city << ", " << addresses[i].street << ", " << addresses[i].houseNumber << ", " << addresses[i].apartmentNumber << std::endl;
+            outFile.close();
+        }
+        else {
+            std::cout << "Unable to open file for writing." << std::endl;
         }
 
         delete[] addresses;
     }
     else {
-        std::cout << "Unable to open file.";
+        std::cout << "Unable to open file for reading." << std::endl;
     }
 
     return 0;
